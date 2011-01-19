@@ -5,6 +5,9 @@
 using namespace std;
 
 
+const unsigned int SIGN_BIT = (1u << (sizeof(int) * 8 - 1));
+
+
 
 //------------------------------------------------------------------
 // SafeIntLong class
@@ -48,15 +51,15 @@ inline SafeIntLong operator + (SafeIntLong lhs, SafeIntLong rhs)
 {
     int sum = lhs._val + rhs._val;
     
-    unsigned lhsBits = (unsigned) lhs._val;
-    unsigned rhsBits = (unsigned) rhs._val;
-    unsigned sumBits = (unsigned) sum;
+    unsigned int lhsBits = (unsigned int) lhs._val;
+    unsigned int rhsBits = (unsigned int) rhs._val;
+    unsigned int sumBits = (unsigned int) sum;
 
     //  Test if the sign bits are the same
     //    and if they are, test if that sign bit
     //    is the same as that of the operands
-    if( ~(lhsBits ^ rhsBits) &  0x80000000u )
-        if( (lhsBits ^ sumBits) & 0x80000000u )
+    if( ~(lhsBits ^ rhsBits) &  SIGN_BIT )
+        if( (lhsBits ^ sumBits) & SIGN_BIT )
             throw "overflow";
 
     return SafeIntLong(sum);
@@ -72,24 +75,24 @@ inline SafeIntLong operator - (SafeIntLong lhs, SafeIntLong rhs)
 
 inline SafeIntLong operator * (SafeIntLong lhs, SafeIntLong rhs)
 {
-    long long longLeft = (long long) lhs._val;
-    long long longRight = (long long) rhs._val;
+    long long int longLeft = (long long int) lhs._val;
+    long long int longRight = (long long int) rhs._val;
 
     // bit patterns
-    unsigned leftBits = (unsigned) lhs._val;
-    unsigned rightBits = (unsigned) rhs._val;
+    unsigned int leftBits = (unsigned int) lhs._val;
+    unsigned int rightBits = (unsigned int) rhs._val;
 
     long long product = longLeft * longRight;
     
     // If the signs are the same, test product against max,
     //   otherwise, test against min integer value
-    if( ~(leftBits ^ rightBits) & 0x80000000u )
+    if( ~(leftBits ^ rightBits) & SIGN_BIT )
     {
-        if(product > (long long) INT_MAX)
+        if(product > (long long int) INT_MAX)
             throw "overflow";
     }
     else
-        if(product < (long long) INT_MIN)
+        if(product < (long long int) INT_MIN)
             throw "overflow";
 
     return SafeIntLong(product);
@@ -160,8 +163,8 @@ inline SafeIntFloat& SafeIntFloat::operator=(const SafeIntFloat& arg)
 inline SafeIntFloat operator + (SafeIntFloat lhs, SafeIntFloat rhs)
 {
     // Bit patterns
-    unsigned leftBits = (unsigned) lhs._val;
-    unsigned rightBits = (unsigned) rhs._val;
+    unsigned int leftBits = (unsigned int) lhs._val;
+    unsigned int rightBits = (unsigned int) rhs._val;
 
     float leftFloat = (float) lhs._val;
     float rightFloat = (float) rhs._val;
@@ -260,18 +263,18 @@ inline SafeIntLim& SafeIntLim::operator=(const SafeIntLim& arg)
 
 inline SafeIntLim operator + (SafeIntLim lhs, SafeIntLim rhs)
 {
-    unsigned leftBits = (unsigned) lhs._val;
-    unsigned rightBits = (unsigned) rhs._val;
+    unsigned int leftBits = (unsigned int) lhs._val;
+    unsigned int rightBits = (unsigned int) rhs._val;
 
     // Only same-sign additions can overflow
-    if( ~(leftBits ^ rightBits) & 0x80000000u )
+    if( ~(leftBits ^ rightBits) & SIGN_BIT )
     {
         // Test negative sum against min value
-        if(leftBits & 0x80000000u && lhs._val < INT_MIN - rhs._val)
+        if(leftBits & SIGN_BIT && lhs._val < INT_MIN - rhs._val)
             throw "overflow";
 
         // Test positive sum against max value
-        else if( !(leftBits & 0x80000000u) && lhs._val > INT_MAX - rhs._val)
+        else if( !(leftBits & SIGN_BIT) && lhs._val > INT_MAX - rhs._val)
             throw "overflow";
     }
 
@@ -290,19 +293,19 @@ inline SafeIntLim operator - (SafeIntLim lhs, SafeIntLim rhs)
 inline SafeIntLim operator * (SafeIntLim lhs, SafeIntLim rhs)
 {
     // Bit patterns
-    unsigned leftBits = (unsigned) lhs._val;
-    unsigned rightBits = (unsigned) rhs._val;
+    unsigned int leftBits = (unsigned int) lhs._val;
+    unsigned int rightBits = (unsigned int) rhs._val;
 
     // Operands have same sign...
     //    overflow will happen in the positive direction
-    if( ~(leftBits ^ rightBits) & 0x80000000u )
+    if( ~(leftBits ^ rightBits) & SIGN_BIT )
     {
         // positive
-        if( !(leftBits & 0x80000000u) && rhs._val != 0 && lhs._val > INT_MAX / rhs._val )
+        if( !(leftBits & SIGN_BIT) && rhs._val != 0 && lhs._val > INT_MAX / rhs._val )
             throw "overflow";
 
         // negative
-        else if(leftBits & 0x80000000u && rhs._val != 0 && lhs._val < INT_MAX / rhs._val)
+        else if(leftBits & SIGN_BIT && rhs._val != 0 && lhs._val < INT_MAX / rhs._val)
             throw "overflow";
 
     }
@@ -312,11 +315,11 @@ inline SafeIntLim operator * (SafeIntLim lhs, SafeIntLim rhs)
     else
     {
         // second operand is positive
-        if( !(rightBits & 0x80000000u) && rhs._val != 0 && lhs._val < INT_MIN / rhs._val )
+        if( !(rightBits & SIGN_BIT) && rhs._val != 0 && lhs._val < INT_MIN / rhs._val )
             throw "overflow";
 
         // second operand is negative
-        if(rightBits & 0x80000000u && rhs._val != 0 && lhs._val > INT_MIN / rhs._val)
+        if(rightBits & SIGN_BIT && rhs._val != 0 && lhs._val > INT_MIN / rhs._val)
             throw "overflow";
     }
 
