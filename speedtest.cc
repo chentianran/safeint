@@ -21,7 +21,7 @@ int main (int argc, char** argv)
             x[i] = 1;
 
         for (int i = 0; i < rows; ++i) {
-            y[i] = 0.0;
+            y[i] = 0;
             for (int j = 0; j < cols; ++j)
                 y[i] = y[i] + A[i*cols+j] * x[j];
         }
