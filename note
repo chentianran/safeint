@@ -1,0 +1,50 @@
+-O0 ========================================
+
+zax@squid:~/safeint$ time ./speedtest_int 
+
+real	0m2.240s
+user	0m2.180s
+sys	0m0.056s
+zax@squid:~/safeint$ time ./speedtest_long
+
+real	0m7.298s
+user	0m7.200s
+sys	0m0.072s
+zax@squid:~/safeint$ time ./speedtest_float
+
+real	0m10.956s
+user	0m10.877s
+sys	0m0.056s
+zax@squid:~/safeint$ time ./speedtest_lim 
+
+real	0m8.868s
+user	0m8.785s
+sys	0m0.068s
+
+-O2 ========================================
+zax@squid:~/safeint$ time ./speedtest_int 
+
+real	0m2.219s
+user	0m2.124s
+sys	0m0.080s
+zax@squid:~/safeint$ time ./speedtest_long
+
+real	0m7.205s
+user	0m7.132s
+sys	0m0.056s
+zax@squid:~/safeint$ time ./speedtest_float
+
+real	0m12.097s
+user	0m11.329s
+sys	0m0.108s
+zax@squid:~/safeint$ time ./speedtest_float
+
+real	0m11.107s
+user	0m10.993s
+sys	0m0.072s
+zax@squid:~/safeint$ time ./speedtest_lim 
+
+real	0m8.881s
+user	0m8.769s
+sys	0m0.088s
+

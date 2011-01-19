@@ -17,7 +17,9 @@ class SafeIntLong
 public:
     int _val;
 
+    SafeIntLong () { };
     SafeIntLong (int value) : _val (value) { };
+    SafeIntLong& operator= (int);
     SafeIntLong& operator= (const SafeIntLong&);
 };
 //
@@ -39,10 +41,15 @@ bool operator== (SafeIntLong, SafeIntLong);
 
 
 
+inline SafeIntLong& SafeIntLong::operator=(int val)
+{
+    _val = val;
+    return *this;
+}
+
 inline SafeIntLong& SafeIntLong::operator=(const SafeIntLong& arg)
 {
     _val = arg._val;
-
     return *this;
 }
 
@@ -133,7 +140,9 @@ class SafeIntFloat
 public:
     int _val;
 
+    SafeIntFloat() { };
     SafeIntFloat (int value) : _val (value) { };
+    SafeIntFloat& operator = (int);
     SafeIntFloat& operator = (const SafeIntFloat&);
 };
 //
@@ -151,6 +160,12 @@ SafeIntFloat operator / (SafeIntFloat, SafeIntFloat);
 SafeIntFloat operator % (SafeIntFloat, SafeIntFloat);
 bool operator== (SafeIntFloat, SafeIntFloat);
 
+
+inline SafeIntFloat& SafeIntFloat::operator=(int val)
+{
+    _val = val;
+    return *this;
+}
 
 inline SafeIntFloat& SafeIntFloat::operator=(const SafeIntFloat& arg)
 {
@@ -235,7 +250,9 @@ class SafeIntLim
 public:
     int _val;
 
+    SafeIntLim () { };
     SafeIntLim (int value) : _val (value) { };
+    SafeIntLim& operator = (int);
     SafeIntLim& operator = (const SafeIntLim&);
 };
 //
@@ -252,6 +269,12 @@ SafeIntLim operator / (SafeIntLim, SafeIntLim);
 SafeIntLim operator % (SafeIntLim, SafeIntLim);
 bool operator== (SafeIntLim, SafeIntLim);
 
+
+inline SafeIntLim& SafeIntLim::operator=(int val)
+{
+    _val = val;
+    return *this;
+}
 
 inline SafeIntLim& SafeIntLim::operator=(const SafeIntLim& arg)
 {
@@ -338,7 +361,6 @@ inline SafeIntLim operator % (SafeIntLim lhs, SafeIntLim rhs)
 {
     return SafeIntLim( lhs._val % rhs._val );
 }
-
 
 inline bool operator == (SafeIntLim lhs, SafeIntLim rhs)
 {
