@@ -10,17 +10,19 @@ const unsigned int SIGN_BIT = (1u << (sizeof(int) * 8 - 1));
 
 
 //------------------------------------------------------------------
-// SafeIntLong class
+// SafeInt class
 //
-class SafeIntLong
+class SafeInt
 {
 public:
     int _val;
 
-    SafeIntLong () { };
-    SafeIntLong (int value) : _val (value) { };
-    SafeIntLong& operator= (int);
-    SafeIntLong& operator= (const SafeIntLong&);
+    SafeInt () { };
+    SafeInt (int value) : _val (value) { }
+    SafeInt (short int value) : _val ( (int) value ) { }
+    SafeInt (char value) : _val( (int) value ) { }
+    SafeInt& operator= (int);
+    SafeInt& operator= (const SafeInt&);
 };
 //
 //--------------------------------------------------------------------
@@ -30,31 +32,38 @@ public:
 
 //--------------------------------------------------------------------
 //
-// SafeIntLong operators
+// SafeInt operators
 //
-SafeIntLong operator + (SafeIntLong, SafeIntLong);
-SafeIntLong operator - (SafeIntLong, SafeIntLong);
-SafeIntLong operator * (SafeIntLong, SafeIntLong);
-SafeIntLong operator / (SafeIntLong, SafeIntLong);
-SafeIntLong operator % (SafeIntLong, SafeIntLong);
-bool operator== (SafeIntLong, SafeIntLong);
+SafeInt operator + (SafeInt, SafeInt);
+SafeInt operator - (SafeInt, SafeInt);
+SafeInt operator * (SafeInt, SafeInt);
+SafeInt operator / (SafeInt, SafeInt);
+SafeInt operator % (SafeInt, SafeInt);
+bool operator== (SafeInt, SafeInt);
+bool operator < (SafeInt, SafeInt);
+bool operator <= (SafeInt, SafeInt);
+bool operator > (SafeInt, SafeInt);
+bool operator >= (SafeInt, SafeInt);
+bool operator ! (SafeInt);
+SafeInt operator - (SafeInt);
+SafeInt abs(SafeInt);
+ostream& operator << (ostream&, SafeInt);
 
 
-
-inline SafeIntLong& SafeIntLong::operator=(int val)
+inline SafeInt& SafeInt::operator=(int val)
 {
     _val = val;
     return *this;
 }
 
-inline SafeIntLong& SafeIntLong::operator=(const SafeIntLong& arg)
+inline SafeInt& SafeInt::operator=(const SafeInt& arg)
 {
     _val = arg._val;
     return *this;
 }
 
 
-inline SafeIntLong operator + (SafeIntLong lhs, SafeIntLong rhs)
+inline SafeInt operator + (SafeInt lhs, SafeInt rhs)
 {
     int sum = lhs._val + rhs._val;
     
@@ -69,18 +78,18 @@ inline SafeIntLong operator + (SafeIntLong lhs, SafeIntLong rhs)
         if( (lhsBits ^ sumBits) & SIGN_BIT )
             throw "overflow";
 
-    return SafeIntLong(sum);
+    return SafeInt(sum);
 }
 
 
-inline SafeIntLong operator - (SafeIntLong lhs, SafeIntLong rhs)
+inline SafeInt operator - (SafeInt lhs, SafeInt rhs)
 {
-    SafeIntLong rhsNew(-rhs._val);
+    SafeInt rhsNew(-rhs._val);
     return lhs + rhsNew;
 }
 
 
-inline SafeIntLong operator * (SafeIntLong lhs, SafeIntLong rhs)
+inline SafeInt operator * (SafeInt lhs, SafeInt rhs)
 {
     long long int longLeft = (long long int) lhs._val;
     long long int longRight = (long long int) rhs._val;
@@ -102,267 +111,83 @@ inline SafeIntLong operator * (SafeIntLong lhs, SafeIntLong rhs)
         if(product < (long long int) INT_MIN)
             throw "overflow";
 
-    return SafeIntLong(product);
+    return SafeInt( lhs._val * rhs._val );
 }
 
 
-inline SafeIntLong operator / (SafeIntLong lhs, SafeIntLong rhs)
+inline SafeInt operator / (SafeInt lhs, SafeInt rhs)
 {
     int quotient = lhs._val / rhs._val;
 
-    return SafeIntLong(quotient);
+    return SafeInt(quotient);
 }
 
 
-inline SafeIntLong operator % (SafeIntLong lhs, SafeIntLong rhs)
+inline SafeInt operator % (SafeInt lhs, SafeInt rhs)
 {
     int mod = lhs._val % rhs._val;
 
-    return SafeIntLong(mod);
+    return SafeInt(mod);
 }
 
 
-inline bool operator == (SafeIntLong lhs, SafeIntLong rhs)
+inline bool operator == (SafeInt lhs, SafeInt rhs)
 {
     return lhs._val == rhs._val;
 }
-//
-// End SafeIntLong operators
-//------------------------------------------------------------------------
 
 
-
-//------------------------------------------------------------------------
-// SafeIntFloat class
-//    
-class SafeIntFloat
+inline bool operator < (SafeInt lhs, SafeInt rhs)
 {
-public:
-    int _val;
-
-    SafeIntFloat() { };
-    SafeIntFloat (int value) : _val (value) { };
-    SafeIntFloat& operator = (int);
-    SafeIntFloat& operator = (const SafeIntFloat&);
-};
-//
-//--------------------------------------------------------------------------
-
-
-
-//--------------------------------------------------------------------------
-// SafeIntFloat operators
-//
-SafeIntFloat operator + (SafeIntFloat, SafeIntFloat);
-SafeIntFloat operator - (SafeIntFloat, SafeIntFloat);
-SafeIntFloat operator * (SafeIntFloat, SafeIntFloat);
-SafeIntFloat operator / (SafeIntFloat, SafeIntFloat);
-SafeIntFloat operator % (SafeIntFloat, SafeIntFloat);
-bool operator== (SafeIntFloat, SafeIntFloat);
-
-
-inline SafeIntFloat& SafeIntFloat::operator=(int val)
-{
-    _val = val;
-    return *this;
-}
-
-inline SafeIntFloat& SafeIntFloat::operator=(const SafeIntFloat& arg)
-{
-    _val = arg._val;
-
-    return *this;
+    return lhs._val < rhs._val;
 }
 
 
-inline SafeIntFloat operator + (SafeIntFloat lhs, SafeIntFloat rhs)
+inline bool operator <= (SafeInt lhs, SafeInt rhs)
 {
-    // Bit patterns
-    unsigned int leftBits = (unsigned int) lhs._val;
-    unsigned int rightBits = (unsigned int) rhs._val;
-
-    float leftFloat = (float) lhs._val;
-    float rightFloat = (float) rhs._val;
-    float maxFloat = (float) INT_MAX;
-    float minFloat = (float) INT_MIN;
-
-    
-    // If the signs are the same, just test the sum of the absolute values against the max
-    // If the signs are different, there can be no overflow
-    float sum = leftFloat + rightFloat;
-    if(sum >= maxFloat || sum <= minFloat)
-        throw "overflow";
-
-
-    return SafeIntFloat( lhs._val + rhs._val );
+    return lhs._val <= rhs._val;
 }
 
 
-inline SafeIntFloat operator - (SafeIntFloat lhs, SafeIntFloat rhs)
+inline bool operator > (SafeInt lhs, SafeInt rhs)
 {
-    SafeIntFloat negRhs( -(rhs._val) );
-
-    return lhs + negRhs;
+    return lhs._val > rhs._val;
 }
 
 
-inline SafeIntFloat operator * (SafeIntFloat lhs, SafeIntFloat rhs)
+inline bool operator >= (SafeInt lhs, SafeInt rhs)
 {
-    float leftFloat = (float) lhs._val;
-    float rightFloat = (float) rhs._val;
-
-    float product = leftFloat * rightFloat;
-    if(product > (float) INT_MAX || product < (float) INT_MIN)
-        throw "overflow";
-
-
-    return SafeIntFloat( lhs._val * rhs._val );
+    return lhs._val >= rhs._val;
 }
 
 
-inline SafeIntFloat operator / (SafeIntFloat lhs, SafeIntFloat rhs)
+inline bool operator ! (SafeInt arg)
 {
-    return SafeIntFloat( lhs._val / rhs._val );
+    return !arg._val;
 }
 
 
-inline SafeIntFloat operator % (SafeIntFloat lhs, SafeIntFloat rhs)
+inline SafeInt operator - (SafeInt arg)
 {
-    return SafeIntFloat( lhs._val % rhs._val );
+    return SafeInt( -arg._val );
 }
 
-
-inline bool operator == (SafeIntFloat lhs, SafeIntFloat rhs)
+inline SafeInt abs(SafeInt arg)
 {
-    return lhs._val == rhs._val;
-}
-//
-// End SafeIntFloat operators
-//--------------------------------------------------------------------------    
-
-
-
-//--------------------------------------------------------------------------
-// SafeIntLim class
-//
-class SafeIntLim
-{
-public:
-    int _val;
-
-    SafeIntLim () { };
-    SafeIntLim (int value) : _val (value) { };
-    SafeIntLim& operator = (int);
-    SafeIntLim& operator = (const SafeIntLim&);
-};
-//
-//----------------------------------------------------------------------------
-
-
-//----------------------------------------------------------------------------
-// SafeIntLim operators
-//
-SafeIntLim operator + (SafeIntLim, SafeIntLim);
-SafeIntLim operator - (SafeIntLim, SafeIntLim);
-SafeIntLim operator * (SafeIntLim, SafeIntLim);
-SafeIntLim operator / (SafeIntLim, SafeIntLim);
-SafeIntLim operator % (SafeIntLim, SafeIntLim);
-bool operator== (SafeIntLim, SafeIntLim);
-
-
-inline SafeIntLim& SafeIntLim::operator=(int val)
-{
-    _val = val;
-    return *this;
-}
-
-inline SafeIntLim& SafeIntLim::operator=(const SafeIntLim& arg)
-{
-    _val = arg._val;
-    
-    return *this;
-}
-
-
-inline SafeIntLim operator + (SafeIntLim lhs, SafeIntLim rhs)
-{
-    unsigned int leftBits = (unsigned int) lhs._val;
-    unsigned int rightBits = (unsigned int) rhs._val;
-
-    // Only same-sign additions can overflow
-    if( ~(leftBits ^ rightBits) & SIGN_BIT )
-    {
-        // Test negative sum against min value
-        if(leftBits & SIGN_BIT && lhs._val < INT_MIN - rhs._val)
-            throw "overflow";
-
-        // Test positive sum against max value
-        else if( !(leftBits & SIGN_BIT) && lhs._val > INT_MAX - rhs._val)
-            throw "overflow";
-    }
-
-    return SafeIntLim( lhs._val + rhs._val );
-}
-
-
-inline SafeIntLim operator - (SafeIntLim lhs, SafeIntLim rhs)
-{
-    SafeIntLim negRhs(-rhs._val);
-
-    return lhs + negRhs;
-}
-
-
-inline SafeIntLim operator * (SafeIntLim lhs, SafeIntLim rhs)
-{
-    // Bit patterns
-    unsigned int leftBits = (unsigned int) lhs._val;
-    unsigned int rightBits = (unsigned int) rhs._val;
-
-    // Operands have same sign...
-    //    overflow will happen in the positive direction
-    if( ~(leftBits ^ rightBits) & SIGN_BIT )
-    {
-        // positive
-        if( !(leftBits & SIGN_BIT) && rhs._val != 0 && lhs._val > INT_MAX / rhs._val )
-            throw "overflow";
-
-        // negative
-        else if(leftBits & SIGN_BIT && rhs._val != 0 && lhs._val < INT_MAX / rhs._val)
-            throw "overflow";
-
-    }
-
-    // Operands have opposite sign...
-    //    overflow will happen in the negative direction
+    unsigned int argBits = (unsigned int) arg._val;
+    if(argBits & SIGN_BIT)
+        return -arg;
     else
-    {
-        // second operand is positive
-        if( !(rightBits & SIGN_BIT) && rhs._val != 0 && lhs._val < INT_MIN / rhs._val )
-            throw "overflow";
-
-        // second operand is negative
-        if(rightBits & SIGN_BIT && rhs._val != 0 && lhs._val > INT_MIN / rhs._val)
-            throw "overflow";
-    }
-
-
-    return SafeIntLim( lhs._val * rhs._val );
+        return arg;
 }
 
 
-inline SafeIntLim operator / (SafeIntLim lhs, SafeIntLim rhs)
+inline ostream& operator << (ostream& out, SafeInt si)
 {
-    return SafeIntLim( lhs._val / rhs._val );
+    out << si._val;
+    return out;
 }
+//
+// End SafeInt operators
+//------------------------------------------------------------------------
 
-
-inline SafeIntLim operator % (SafeIntLim lhs, SafeIntLim rhs)
-{
-    return SafeIntLim( lhs._val % rhs._val );
-}
-
-inline bool operator == (SafeIntLim lhs, SafeIntLim rhs)
-{
-    return lhs._val == rhs._val;
-}
