@@ -39,14 +39,31 @@ SafeInt operator - (SafeInt, SafeInt);
 SafeInt operator * (SafeInt, SafeInt);
 SafeInt operator / (SafeInt, SafeInt);
 SafeInt operator % (SafeInt, SafeInt);
+
 bool operator== (SafeInt, SafeInt);
 bool operator < (SafeInt, SafeInt);
 bool operator <= (SafeInt, SafeInt);
 bool operator > (SafeInt, SafeInt);
 bool operator >= (SafeInt, SafeInt);
 bool operator ! (SafeInt);
+
+SafeInt& operator ++ (SafeInt&);
+SafeInt operator ++ (SafeInt&, int);
+SafeInt& operator -- (SafeInt&);
+SafeInt operator -- (SafeInt&, int);
+SafeInt& operator += (SafeInt&, SafeInt);
+SafeInt& operator += (SafeInt&, int i);
+SafeInt& operator -= (SafeInt&, SafeInt);
+SafeInt& operator -= (SafeInt&, int);
+SafeInt& operator *= (SafeInt&, SafeInt);
+SafeInt& operator *= (SafeInt&, int);
+SafeInt& operator /= (SafeInt&, SafeInt);
+SafeInt& operator /= (SafeInt&, int);
+SafeInt& operator %= (SafeInt&, SafeInt);
+SafeInt& operator %= (SafeInt&, int);
 SafeInt operator - (SafeInt);
 SafeInt abs(SafeInt);
+
 ostream& operator << (ostream&, SafeInt);
 
 
@@ -164,6 +181,105 @@ inline bool operator >= (SafeInt lhs, SafeInt rhs)
 inline bool operator ! (SafeInt arg)
 {
     return !arg._val;
+}
+
+
+inline SafeInt& operator ++ (SafeInt& arg)
+{
+    SafeInt one(1);
+    arg = arg + one;
+    return arg;
+}
+
+
+inline SafeInt operator ++ (SafeInt& arg, int i)
+{
+    int val = arg._val;
+    SafeInt one(1);
+    arg = arg + 1;
+    return SafeInt(val); 
+}
+
+
+inline SafeInt& operator += (SafeInt& lhs, SafeInt rhs)
+{
+    lhs = lhs + rhs;
+    return lhs;
+}
+
+
+inline SafeInt& operator += (SafeInt& lhs, int rhs)
+{
+    lhs = lhs + SafeInt(rhs);
+    return lhs;
+}
+
+
+inline SafeInt& operator -- (SafeInt& arg)
+{
+    SafeInt one(1);
+    arg = arg - one;
+    return arg;
+}
+
+
+inline SafeInt operator -- (SafeInt& arg, int i)
+{
+    int val = arg._val;
+    SafeInt one(1);
+    arg = arg - one;
+    return SafeInt(val);
+}
+
+
+inline SafeInt& operator -= (SafeInt& lhs, SafeInt rhs)
+{
+    return lhs += -rhs;
+}
+
+
+inline SafeInt& operator -= (SafeInt& lhs, int rhs)
+{
+    return lhs += -rhs;
+}
+
+
+inline SafeInt& operator *= (SafeInt& lhs, SafeInt rhs)
+{
+    lhs = lhs * rhs;
+    return lhs;
+}
+
+
+inline SafeInt& operator *= (SafeInt& lhs, int rhs)
+{
+    return lhs *= SafeInt(rhs);
+}
+
+
+inline SafeInt& operator /= (SafInt& lhs, SafeInt rhs)
+{
+    lhs = lhs / rhs;
+    return lhs;
+}
+
+
+inline SafeInt& operator /= (SafeInt& lhs, int rhs)
+{
+    return lhs /= SafeInt(rhs);
+}
+
+
+inline SafeInt& operator %= (SafeInt& lhs, SafeInt rhs)
+{
+    lhs = lhs % rhs;
+    return lhs;
+}
+
+
+inline SafeInt& operator %= (SafeInt& lhs, int rhs)
+{
+    return lhs %= SafeInt(rhs);
 }
 
 
