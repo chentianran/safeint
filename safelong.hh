@@ -2,12 +2,7 @@
 #include <math.h>
 #include <string>
 
-using namespace std;
 
-
-const unsigned long long int SIGN_BIT = (1uLL << (sizeof(long long int) * 8 - 1));
-const int LONGBITS = sizeof(long long int) * 8;
-const long long int THRESHOLD = 2000000000l;
 
 
 
@@ -25,6 +20,12 @@ public:
     SafeLong (char value) : _val( (long long int) value ) { }
     SafeLong& operator= (long long int);
     SafeLong& operator= (const SafeLong&);
+
+    static const unsigned long long int SIGN_BIT = (1uLL << (sizeof(long long int) * 8 - 1));
+    static const int LONGBITS = sizeof(long long int) * 8;
+    static const long long int THRESHOLD = 2000000000l;
+
+
 };
 //
 //--------------------------------------------------------------------
@@ -66,7 +67,7 @@ SafeLong& operator %= (SafeLong&, long long int);
 SafeLong operator - (SafeLong);
 SafeLong abs(SafeLong);
 
-ostream& operator << (ostream&, SafeLong);
+std::ostream& operator << (std::ostream&, SafeLong);
 
 
 inline SafeLong& SafeLong::operator=(long long int val)
@@ -93,8 +94,8 @@ inline SafeLong operator + (SafeLong lhs, SafeLong rhs)
     //  Test if the sign bits are the same
     //    and if they are, test if that sign bit
     //    is the same as that of the operands
-    if( ~(lhsBits ^ rhsBits) &  SIGN_BIT )
-        if( (lhsBits ^ sumBits) & SIGN_BIT )
+    if( ~(lhsBits ^ rhsBits) &  SafeLong::SIGN_BIT )
+        if( (lhsBits ^ sumBits) & SafeLong::SIGN_BIT )
             throw "overflow";
 
     return SafeLong(sum);
@@ -120,8 +121,8 @@ inline SafeLong operator * (SafeLong lhs, SafeLong rhs)
     
     
     // check for the threshold
-    if( lhs._val > -THRESHOLD && lhs._val < THRESHOLD &&
-        rhs._val > -THRESHOLD && rhs._val < THRESHOLD )
+    if( lhs._val > -SafeLong::THRESHOLD && lhs._val < SafeLong::THRESHOLD &&
+        rhs._val > -SafeLong::THRESHOLD && rhs._val < SafeLong::THRESHOLD )
         return product;
     else
     {
@@ -131,31 +132,31 @@ inline SafeLong operator * (SafeLong lhs, SafeLong rhs)
         int leftSigBit = 0;
         int rightSigBit = 0;
 
-        for(int i=0; i<LONGBITS; i++)
-          if(leftBits & 1uLL << (LONGBITS - i - 1))
-          { leftSigBit = LONGBITS - i; break;}
+        for(int i=0; i<SafeLong::LONGBITS; i++)
+          if(leftBits & 1uLL << (SafeLong::LONGBITS - i - 1))
+          { leftSigBit = SafeLong::LONGBITS - i; break;}
 
-        for(int i=0; i<LONGBITS; i++)
-          if(rightBits & 1uLL << (LONGBITS - i - 1))
-          { rightSigBit = LONGBITS - i; break;}
+        for(int i=0; i<SafeLong::LONGBITS; i++)
+          if(rightBits & 1uLL << (SafeLong::LONGBITS - i - 1))
+          { rightSigBit = SafeLong::LONGBITS - i; break;}
 
         // If the place values add to more than 64, then overflow
-        if(leftSigBit + rightSigBit > LONGBITS)
+        if(leftSigBit + rightSigBit > SafeLong::LONGBITS)
             throw "overflow";
         // If the place values add to exactly 64, overflow can be
         // detected similarly to addition
-        else if(leftSigBit + rightSigBit == LONGBITS)
+        else if(leftSigBit + rightSigBit == SafeLong::LONGBITS)
         {
             // If the signs are the same, product should have positive sign
-            if( ~(leftBits ^ rightBits) &  SIGN_BIT )
+            if( ~(leftBits ^ rightBits) &  SafeLong::SIGN_BIT )
             {
-              if(  prodBits & SIGN_BIT )
+              if(  prodBits & SafeLong::SIGN_BIT )
                 throw "overflow";
             }
             // If operands have opposite sign, result should be negative
             else
             {
-              if( !(prodBits & SIGN_BIT) )
+              if( !(prodBits & SafeLong::SIGN_BIT) )
                 throw "overflow";
             }
         }
@@ -325,14 +326,14 @@ inline SafeLong operator - (SafeLong arg)
 inline SafeLong abs(SafeLong arg)
 {
     unsigned long long int argBits = (unsigned long long int) arg._val;
-    if(argBits & SIGN_BIT)
+    if(argBits & SafeLong::SIGN_BIT)
         return -arg;
     else
         return arg;
 }
 
 
-inline ostream& operator << (ostream& out, SafeLong si)
+inline std::ostream& operator << (std::ostream& out, SafeLong si)
 {
     out << si._val;
     return out;
