@@ -111,14 +111,14 @@ inline SafeLong operator - (SafeLong lhs, SafeLong rhs)
 
 inline SafeLong operator * (SafeLong lhs, SafeLong rhs)
 {
-
-    // bit patterns
-    unsigned long long int leftBits = (unsigned long long int) lhs._val;
-    unsigned long long int rightBits = (unsigned long long int) rhs._val;
-
-    long long int product = lhs._val * rhs._val;
-    unsigned long long int prodBits = (unsigned long long int) product;
     
+    // bit patterns (of the absolute values)
+    unsigned long long int leftBits = (unsigned long long int) 
+                           lhs._val & SafeLong::SIGN_BIT ? -lhs._val : lhs._val;
+    unsigned long long int rightBits = (unsigned long long int) 
+                           rhs._val & SafeLong::SIGN_BIT ? -rhs._val : rhs._val;
+ 
+
     
     // check for the threshold
     if( lhs._val > -SafeLong::THRESHOLD && lhs._val < SafeLong::THRESHOLD &&
@@ -128,7 +128,7 @@ inline SafeLong operator * (SafeLong lhs, SafeLong rhs)
     {
         // Count the place values :
         //   overflow can only occur if the place values of the most
-        //   significant bits add to 64 or more
+        //   significant bits add to 63 or more
         int leftSigBit = 0;
         int rightSigBit = 0;
 
@@ -139,28 +139,13 @@ inline SafeLong operator * (SafeLong lhs, SafeLong rhs)
         for(int i=0; i<SafeLong::LONGBITS; i++)
           if(rightBits & 1uLL << (SafeLong::LONGBITS - i - 1))
           { rightSigBit = SafeLong::LONGBITS - i; break;}
+ 
 
-        // If the place values add to more than 64, then overflow
-        if(leftSigBit + rightSigBit > SafeLong::LONGBITS)
+        // If the place values add to more than 64(for pos), then overflow
+        if(leftSigBit + rightSigBit - 1 > SafeLong::LONGBITS - 2)
             throw "overflow";
-        // If the place values add to exactly 64, overflow can be
-        // detected similarly to addition
-        else if(leftSigBit + rightSigBit == SafeLong::LONGBITS)
-        {
-            // If the signs are the same, product should have positive sign
-            if( ~(leftBits ^ rightBits) &  SafeLong::SIGN_BIT )
-            {
-              if(  prodBits & SafeLong::SIGN_BIT )
-                throw "overflow";
-            }
-            // If operands have opposite sign, result should be negative
-            else
-            {
-              if( !(prodBits & SafeLong::SIGN_BIT) )
-                throw "overflow";
-            }
-        }
-    }
+
+     }
 
 
     return SafeLong( lhs._val * rhs._val );
