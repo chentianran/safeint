@@ -123,7 +123,7 @@ inline SafeLong operator * (SafeLong lhs, SafeLong rhs)
     // check for the threshold
     if( lhs._val > -SafeLong::THRESHOLD && lhs._val < SafeLong::THRESHOLD &&
         rhs._val > -SafeLong::THRESHOLD && rhs._val < SafeLong::THRESHOLD )
-        return product;
+        return SafeLong( lhs._val * rhs._val );
     else
     {
         // Count the place values :
