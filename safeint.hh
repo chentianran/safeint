@@ -257,7 +257,7 @@ inline SafeInt& operator *= (SafeInt& lhs, int rhs)
 }
 
 
-inline SafeInt& operator /= (SafInt& lhs, SafeInt rhs)
+inline SafeInt& operator /= (SafeInt& lhs, SafeInt rhs)
 {
     lhs = lhs / rhs;
     return lhs;
